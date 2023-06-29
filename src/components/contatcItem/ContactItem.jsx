@@ -1,33 +1,30 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import css from './ContactItem.module.css';
-
-export class ContactItem extends Component {
-  state = {
-    id: this.props.id,
-  };
+export const ContactItem = ({
+  id,
+  deleteContact,
+  name,
+  number,
+  onDeleteBtn,
+}) => {
+  const [stateId] = useState(id);
 
   onDeleteBtn = () => {
-    this.props.deleteContact(this.state.id);
+    deleteContact(stateId);
   };
 
-  render() {
-    return (
-      <li key={this.state.id} className={css.item__contact}>
-        <p>
-          {this.props.name}: <span>{this.props.number}</span>
-        </p>
-        <button
-          className={css.contact__btn}
-          type="button"
-          onClick={this.onDeleteBtn}
-        >
-          Delete
-        </button>
-      </li>
-    );
-  }
-}
+  return (
+    <li key={stateId} className={css.item__contact}>
+      <p>
+        {name}: <span>{number}</span>
+      </p>
+      <button className={css.contact__btn} type="button" onClick={onDeleteBtn}>
+        Delete
+      </button>
+    </li>
+  );
+};
 
 ContactItem.propTypes = {
   id: PropTypes.string,

@@ -4,22 +4,24 @@ import { SearchContact } from '../searchContact/SearchContact';
 import { ContactList } from '../contactList/ContactList';
 import { Notification } from '../notification/Notification';
 import { Section } from '../section/Section';
-import { Component, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import css from './App.module.css';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const contactArr = [
+    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+  ];
+  const storage = () =>
+    JSON.parse(window.localStorage.getItem('storageContacts'));
+
+  const [contacts, setContacts] = useState(storage() ?? []);
   const [filter, setFilter] = useState('');
 
-  useEffect(() => {
-    const parsedContatcs = JSON.parse(localStorage.getItem('storageContacts'));
-    // if (parsedContatcs) {
-    //   setContacts(parsedContatcs);
-    // }
-    localStorage.setItem('storageContacts', JSON.stringify(contacts));
-  }, [contacts]);
-
   const handleSubmit = contactItem => {
+    console.log(contactItem);
     const { name } = contactItem;
     if (
       contacts.some(
@@ -28,31 +30,33 @@ export const App = () => {
     ) {
       Notiflix.Report.warning('Warning', `${name} is already in contacts.`);
     } else {
-      setContacts(prevContacts => [contactItem, ...prevContacts]);
+      setContacts(prevState => [contactItem, ...prevState]);
     }
   };
 
-  const getVisibleContacts = idToDelete =>
-    setContacts(prevContacts => {
-      prevContacts.filter(({ id }) => id !== idToDelete);
-    });
+  const deleteContact = idToDelete => {
+    setContacts(prevContacts =>
+      prevContacts.filter(({ id }) => id !== idToDelete)
+    );
+  };
 
   const onChangeFilter = e => {
     setFilter(e.currentTarget.value);
-    console.log(filter);
   };
 
   const getFilterContact = () => {
     const normalizedFilter = filter.toLowerCase();
-
-    return contacts.filter(contact => {
-      const filtered = contact.name.toLowerCase().includes(normalizedFilter);
-      console.log(filtered);
-    });
+    console.log(contacts);
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
   };
 
-  const filteredContacts = getFilterContact();
-  // console.log(filteredContacts);
+  useEffect(() => {
+    window.localStorage.setItem('storageContacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  const visibleContacts = getFilterContact();
   return (
     <div className={css.container}>
       <Section title={'Phonebook'}>
@@ -62,8 +66,8 @@ export const App = () => {
         <SearchContact onChangeFilter={onChangeFilter} />
         {contacts.length ? (
           <ContactList
-            VisibleContacts={filteredContacts}
-            onDeleteBtn={getVisibleContacts}
+            visibleContacts={visibleContacts}
+            onDeleteBtn={deleteContact}
           />
         ) : (
           <Notification message={'the phonebook is empty!'} />
@@ -72,6 +76,8 @@ export const App = () => {
     </div>
   );
 };
+
+// };
 
 // export class App extends Component {
 //   state = {
